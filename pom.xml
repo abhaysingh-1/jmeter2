@@ -176,20 +176,24 @@
 					<wtpversion>2.0</wtpversion>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
-            <groupId>com.lazerycode.jmeter</groupId>
-            <artifactId>jmeter-maven-plugin</artifactId>
-            <version>2.1.0</version>
-            <executions>
-                <execution>
-                    <id>jmeter-tests</id>
-                    <goals>
-                        <goal>jmeter</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
+				<groupId>com.lazerycode.jmeter</groupId>
+				<artifactId>jmeter-maven-plugin</artifactId>
+				<version>2.1.0</version>
+				<configuration>
+					<testResultsTimestamp>true</testResultsTimestamp>
+					<resultsFileNameDateFormat>yyyyMMdd-HHmmss</resultsFileNameDateFormat>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jmeter-tests</id>
+						<goals>
+							<goal>jmeter</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<plugin>
 				<groupId>net.kindleit</groupId>
@@ -234,7 +238,8 @@
 
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -267,24 +272,36 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				
+
 				<plugin>
-        <groupId>de.codecentric</groupId>
-        <artifactId>jmeter-graph-maven-plugin</artifactId>
-        <version>0.1.0</version>
-        <configuration>
-          <inputFile>${project.build.directory}/jmeter/results/SimpleWebservicePerformanceTest.jtl</inputFile>
-          <graphs>
-            <graph>
-              <pluginType>ThreadsStateOverTime</pluginType>
-              <width>800</width>
-              <height>600</height>
-              <outputFile>${project.build.directory}/jmeter/results/SimpleWebservicePerformanceTest-ThreadsStateOverTime.png</outputFile>
-            </graph>
-            <!-- ... you can declare more <graph>-elements here -->
-          </graphs>
-        </configuration>
-      </plugin>
+					<groupId>de.codecentric</groupId>
+					<artifactId>jmeter-graph-maven-plugin</artifactId>
+					<version>0.1.0</version>
+					<configuration>
+						<!-- <inputFile>${project.build.directory}/jmeter/results/*.jtl</inputFile> 
+							<graphs> <graph> <pluginType>ThreadsStateOverTime</pluginType> <width>800</width> 
+							<height>600</height> <outputFile>${project.build.directory}/jmeter/results/*-ThreadsStateOverTime.png</outputFile> 
+							</graph> ... you can declare more <graph>-elements here </graphs> -->
+						<tasks>
+							<mkdir
+								dir ="${project.build.directory}/target/jmeter/results/dashboard/" />
+							<mkdir dir="${project.build.directory}/target/jmeter/results/" />
+							<mkdir dir="${project.build.directory}/target/jmeter/testFiles/viewcenter"/>
+							<copy file="${project.build.directory}/src/test/resources/reportgenerator.properties"
+								tofile="${project.build.directory}/target/jmeter/bin/reportgenerator.properties" />
+							<copy todir="${project.build.directory}/target/jmeter/bin/report-template">
+								<fileset dir="${project.build.directory}/src/test/resources/report-template" />
+							</copy>
+							<java jar="${basedir}/target/jmeter/bin/ApacheJMeter-3.1.jar"
+								fork="true">
+								<arg value="-g" />
+								<arg value="${basedir}/target/jmeter/results/*.jtl" />
+								<arg value="-o" />
+								<arg value="${basedir}/target/jmeter/results/dashboard/" />
+							</java>
+						</tasks>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
